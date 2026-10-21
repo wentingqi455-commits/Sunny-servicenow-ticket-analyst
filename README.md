@@ -60,7 +60,7 @@ If your instance uses the client credentials grant instead, set
 ### Hardware barcode
 
 By default the barcode is read from the configuration item's asset tag or serial number,
-and any 6 to 20 digit number in the ticket text. If your barcode is stored somewhere else
+and any 8 or 14 digit number in the ticket text (set `BARCODE_LENGTHS` to change). If your barcode is stored somewhere else
 (for example a custom field `u_barcode`, or `cmdb_ci.u_barcode`), put that field in
 `BARCODE_FIELDS`. Change `HARDWARE_CATEGORIES` if your hardware category has another name.
 

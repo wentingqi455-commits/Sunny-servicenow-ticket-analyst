@@ -34,12 +34,13 @@ def is_hardware(ticket: dict[str, Any], settings: Settings) -> bool:
 
 
 def extract_barcodes(ticket: dict[str, Any], settings: Settings) -> list[str]:
-    lo, hi = settings.barcode_min_digits, settings.barcode_max_digits
-    digits_re = re.compile(r"(?<![\w.])\d{%d,%d}(?![\w.])" % (lo, hi))
+    lengths = sorted(set(settings.barcode_lengths), reverse=True)
+    alts = "|".join(r"\d{%d}" % n for n in lengths)
+    digits_re = re.compile(r"(?<![\w.])(?:%s)(?![\w.])" % alts)
     found: list[str] = []
     for f in settings.barcode_fields:
         v = str(ticket.get(f, "")).strip()
-        if v.isdigit() and lo <= len(v) <= hi:
+        if v.isdigit() and len(v) in lengths:
             found.append(v)
     for f in TEXT_FIELDS:
         found.extend(digits_re.findall(ticket.get(f, "") or ""))

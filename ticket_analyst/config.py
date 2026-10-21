@@ -47,8 +47,7 @@ class Settings:
     # Hardware barcode
     hardware_categories: list[str] = field(default_factory=list)
     barcode_fields: list[str] = field(default_factory=list)
-    barcode_min_digits: int = 6
-    barcode_max_digits: int = 20
+    barcode_lengths: list[int] = field(default_factory=lambda: [8, 14])
 
     # OpenAI
     openai_api_key: str = ""
@@ -73,8 +72,7 @@ class Settings:
             verify_ssl=_env("SN_VERIFY_SSL", "true").lower() != "false",
             hardware_categories=[c.lower() for c in _env_list("HARDWARE_CATEGORIES", "hardware")],
             barcode_fields=_env_list("BARCODE_FIELDS", "cmdb_ci.asset_tag,cmdb_ci.serial_number"),
-            barcode_min_digits=int(_env("BARCODE_MIN_DIGITS", "6")),
-            barcode_max_digits=int(_env("BARCODE_MAX_DIGITS", "20")),
+            barcode_lengths=[int(n) for n in _env_list("BARCODE_LENGTHS", "8,14")],
             openai_api_key=_env("OPENAI_API_KEY"),
             openai_model=_env("OPENAI_MODEL", "gpt-4.1"),
             openai_base_url=_env("OPENAI_BASE_URL"),

@@ -13,8 +13,7 @@ def settings(**kw):
     s = Settings(
         hardware_categories=["hardware"],
         barcode_fields=["cmdb_ci.asset_tag"],
-        barcode_min_digits=6,
-        barcode_max_digits=20,
+        barcode_lengths=[8, 14],
     )
     for k, v in kw.items():
         setattr(s, k, v)
@@ -41,11 +40,11 @@ def test_sanitize_extracts_barcode_then_drops_people():
         "description": "Bob Smith says laptop 12345678 is dead, version 1.2.3456789",
         "caller_id": "Bob Smith",
         "assigned_to": "Ann Lee",
-        "cmdb_ci.asset_tag": "998877665",
+        "cmdb_ci.asset_tag": "12345678901234",
     }
     out = sanitize(t, settings())
     assert out["is_hardware"]
-    assert out["barcodes"] == ["998877665", "12345678"]
+    assert out["barcodes"] == ["12345678901234", "12345678"]
     assert "Bob" not in out["description"] and "Smith" not in out["description"]
     assert "caller_id" not in out and "assigned_to" not in out
     assert "12345678" in out["description"]  # barcode stays in the text
@@ -117,3 +116,9 @@ def test_end_to_end_with_fake_openai(tmp_path, monkeypatch):
     blob = "\n".join(sent)
     for leak in ("Alice", "Johnson", "@example.com", "7700", "555-123"):
         assert leak not in blob
+
+
+def test_barcode_only_8_or_14_digits():
+    t = {"number": "INC2", "category": "Hardware",
+         "short_description": "codes 1234567 12345678 123456789 12345678901234 123456789012345"}
+    assert sanitize(t, settings())["barcodes"] == ["12345678", "12345678901234"]
